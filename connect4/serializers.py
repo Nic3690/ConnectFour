@@ -4,4 +4,4 @@ from .models import ConnectFour
 class ConnectFourSerializer(serializers.ModelSerializer):
     class Meta:
         model = ConnectFour
-        fields = ['id', 'room_name', 'current_player']
+        fields = ['id', 'board', 'current_player']
