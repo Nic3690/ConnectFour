@@ -8,6 +8,24 @@ from .serializers import ConnectFourSerializer
 def index(request):
     return render(request, 'frontend/index.html')
 
+def check_winner(board, x, y, player):
+    directions = [(1, 0), (0, 1), (1, 1), (1, -1)]
+    for dx, dy in directions:
+        count = 1
+        for i in range(1, 4):
+            if 0 <= x + i*dx < 7 and 0 <= y + i*dy < 6 and board[y + i*dy][x + i*dx] == player:
+                count += 1
+            else:
+                break
+        for i in range(1, 4):
+            if 0 <= x - i*dx < 7 and 0 <= y - i*dy < 6 and board[y - i*dy][x - i*dx] == player:
+                count += 1
+            else:
+                break
+        if count >= 4:
+            return True
+    return False
+
 @api_view(['POST'])
 def make_move(request, game_id):
     game = ConnectFour.objects.get(pk=game_id)
@@ -17,10 +35,13 @@ def make_move(request, game_id):
         return Response({"error": "Invalid column"}, status=status.HTTP_400_BAD_REQUEST)
 
     board = [list(game.board[i:i+7]) for i in range(0, 42, 7)]
+    row_index = None
+    player = 'X' if game.current_player == 1 else 'O'
 
     for row in reversed(board):
         if row[column] == '.':
-            row[column] = 'X' if game.current_player == 1 else 'O'
+            row[column] = player
+            row_index = board.index(row)
             game.current_player = 2 if game.current_player == 1 else 1
             break
     else:
@@ -28,10 +49,28 @@ def make_move(request, game_id):
 
     game.board = ''.join([''.join(row) for row in board])
     game.save()
+
+    is_winner = check_winner(board, column, row_index, player)
+    winner = game.current_player if is_winner else None
     
-    return Response(ConnectFourSerializer(game).data, status=status.HTTP_200_OK)
+    return Response({"board": game.board, "winner": winner}, status=status.HTTP_200_OK)
 
 @api_view(['GET'])
 def get_board(request, game_id):
     game, created = ConnectFour.objects.get_or_create(pk=game_id)
+    board = [list(game.board[i:i+7]) for i in range(0, 42, 7)]
+
+    for y, row in enumerate(board):
+        for x, cell in enumerate(row):
+            if cell != '.' and check_winner(board, y, x, cell):
+                return Response({"board": game.board, "winner": 'X' if game.current_player == 2 else 'O'}, status=status.HTTP_200_OK)
+
+    return Response(ConnectFourSerializer(game).data, status=status.HTTP_200_OK)
+
+@api_view(['POST'])
+def reset_game(request, game_id):
+    game = ConnectFour.objects.get(pk=game_id)
+    game.board = '.' * 42
+    game.current_player = 1
+    game.save()
     return Response(ConnectFourSerializer(game).data, status=status.HTTP_200_OK)
