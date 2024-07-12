@@ -33,5 +33,5 @@ def make_move(request, game_id):
 
 @api_view(['GET'])
 def get_board(request, game_id):
-    game = ConnectFour.objects.get(pk=game_id)
+    game, created = ConnectFour.objects.get_or_create(pk=game_id)
     return Response(ConnectFourSerializer(game).data, status=status.HTTP_200_OK)

@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Connect 4</title>
+	<script src="https://cdn.jsdelivr.net/npm/vue@2"></script>
+</head>
+<body>
+	<div id="app">
+		<h1>Connect 4</h1>
+		<div v-for="(row, rowIndex) in board" :key="rowIndex" class="row">
+			<div
+				v-for="(cell, cellIndex) in row"
+				:key="cellIndex"
+				class="cell"
+				@click="makeMove(cellIndex)"
+			>
+				{{ cell }}
+			</div>
+		</div>
+	</div>
+
+	<script>
+		new Vue({
+			el: '#app',
+			data: {
+				board: [],
+				gameId: 1,
+				csrfToken: ''
+			},
+			created() {
+				this.getBoard();
+				this.getCsrfToken();
+			},
+			methods: {
+				getBoard() {
+					fetch(`/api/get_board/${this.gameId}/`)
+						.then(response => response.json())
+						.then(data => {
+							this.board = data.board;
+						})
+						.catch(error => {
+							console.error('Error fetching board:', error);
+						});
+				},
+				makeMove(column) {
+					fetch(`/api/make_move/${this.gameId}/`, {
+						method: 'POST',
+						headers: {
+							'Content-Type': 'application/json',
+							'X-CSRFToken': this.csrfToken
+						},
+						body: JSON.stringify({ column: column }),
+					})
+						.then(response => response.json())
+						.then(data => {
+							this.board = data.board;
+						})
+						.catch(error => {
+							console.error('Error making move:', error);
+						});
+				},
+				getCsrfToken() {
+					const cookies = document.cookie.split(';');
+					for (let i = 0; i < cookies.length; i++) {
+						const cookie = cookies[i].trim();
+						if (cookie.startsWith('csrftoken=')) {
+							this.csrfToken = cookie.substring('csrftoken='.length, cookie.length);
+							break;
+						}
+					}
+				}
+			}
+		});
+	</script>
+
+	<style>
+		.row {
+			display: flex;
+		}
+		.cell {
+			width: 50px;
+			height: 50px;
+			border: 1px solid #000;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			cursor: pointer;
+		}
+	</style>
+</body>
+</html>
