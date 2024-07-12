@@ -1,15 +1,19 @@
+from django.shortcuts import render
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from .models import ConnectFour
 from .serializers import ConnectFourSerializer
 
+def index(request):
+    return render(request, 'frontend/index.html')
+
 @api_view(['POST'])
 def make_move(request, game_id):
     game = ConnectFour.objects.get(pk=game_id)
     column = request.data.get('column')
 
-    if column <0 or column > 6:
+    if column < 0 or column > 6:
         return Response({"error": "Invalid column"}, status=status.HTTP_400_BAD_REQUEST)
 
     board = [list(game.board[i:i+7]) for i in range(0, 42, 7)]
