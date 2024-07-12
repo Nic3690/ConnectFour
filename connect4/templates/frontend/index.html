@@ -119,12 +119,6 @@
 								boardArray.push(data.board.slice(i * 7, (i + 1) * 7).split(''));
 							}
 							this.board = boardArray;
-							if (data.winner === 1 || data.winner === 2) {
-								setTimeout(() => {
-									alert(`We have a winner!`);
-									this.resetGame();
-								}, 500)
-							}
 						})
 						.catch(error => {
 							console.error('Error fetching board:', error);
@@ -155,6 +149,7 @@
 						})
 						.catch(error => {
 							console.error('Error making move:', error);
+							alert('Invalid move: column is full!');
 						});
 				},
 				resetGame() {

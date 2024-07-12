@@ -12,7 +12,7 @@ def check_winner(board, x, y, player):
     def count_consecutive(dx, dy):
         count = 0
         for i in range(1, 4):
-            nx, ny = x + i*dx, y + i*dy
+            nx, ny = i * dx + x, i * dy + y
             if 0 <= nx < 7 and 0 <= ny < 6 and board[ny][nx] == player:
                 count += 1
             else:
@@ -21,7 +21,7 @@ def check_winner(board, x, y, player):
 
     directions = [(1, 0), (0, 1), (1, 1), (1, -1)]
     for dx, dy in directions:
-        total_count = 1 + count_consecutive(dx, dy) + count_consecutive(-dx, -dy)
+        total_count = count_consecutive(dx, dy) + count_consecutive(-dx, -dy) + 1
         if total_count >= 4:
             return True
     return False
@@ -56,19 +56,12 @@ def make_move(request, game_id):
     return Response({"board": game.board, "winner": winner}, status=status.HTTP_200_OK)
 
 @api_view(['GET'])
-def get_board(request, game_id):
-    game, created = ConnectFour.objects.get_or_create(pk=game_id)
-    board = [list(game.board[i:i+7]) for i in range(0, 42, 7)]
-
-    for y, row in enumerate(board):
-        for x, cell in enumerate(row):
-            if cell != '.' and check_winner(board, y, x, cell):
-                return Response({"board": game.board, "winner": 'X' if game.current_player == 2 else 'O'}, status=status.HTTP_200_OK)
-
+def get_board(game_id):
+    game = ConnectFour.objects.get(pk=game_id)
     return Response(ConnectFourSerializer(game).data, status=status.HTTP_200_OK)
 
 @api_view(['POST'])
-def reset_game(request, game_id):
+def reset_game(game_id):
     game = ConnectFour.objects.get(pk=game_id)
     game.board = '.' * 42
     game.current_player = 1
