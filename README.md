@@ -38,19 +38,25 @@ To get started with the Connect 4 Django web app, follow these steps:
       source venv/bin/activate
       ```
 
-5. Run database migrations:
+5. If you haven't already, install the Vue.js CLI
+
+    ```bash
+    npm install -g @vue/cli
+    ```
+
+6. Run database migrations:
 
     ```bash
     python manage.py migrate
     ```
 
-6. Start the development server:
+7. Start the development server:
 
     ```bash
     python manage.py runserver
     ```
 
-7. Open your web browser and visit `http://localhost:8000` to access the Connect 4 web app.
+8. Open your web browser and visit `http://localhost:8000` to access the Connect 4 web app.
 
 ## Specifications
 
