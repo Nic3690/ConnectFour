@@ -121,8 +121,9 @@
 							this.board = boardArray;
 							if (data.winner === 1 || data.winner === 2) {
 								setTimeout(() => {
-									alert(`Player ${data.winner} wins!`);
-								}, 500);
+									alert(`We have a winner!`);
+									this.resetGame();
+								}, 500)
 							}
 						})
 						.catch(error => {
@@ -147,8 +148,9 @@
 							this.board = boardArray;
 							if (data.winner === 1 || data.winner === 2) {
 								setTimeout(() => {
-									alert(`Player ${data.winner} wins!`);
-								}, 500);
+									alert(`We have a winner!`);
+									this.resetGame();
+								}, 500)
 							}
 						})
 						.catch(error => {

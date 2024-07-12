@@ -9,20 +9,20 @@ def index(request):
     return render(request, 'frontend/index.html')
 
 def check_winner(board, x, y, player):
+    def count_consecutive(dx, dy):
+        count = 0
+        for i in range(1, 4):
+            nx, ny = x + i*dx, y + i*dy
+            if 0 <= nx < 7 and 0 <= ny < 6 and board[ny][nx] == player:
+                count += 1
+            else:
+                break
+        return count
+
     directions = [(1, 0), (0, 1), (1, 1), (1, -1)]
     for dx, dy in directions:
-        count = 1
-        for i in range(1, 4):
-            if 0 <= x + i*dx < 7 and 0 <= y + i*dy < 6 and board[y + i*dy][x + i*dx] == player:
-                count += 1
-            else:
-                break
-        for i in range(1, 4):
-            if 0 <= x - i*dx < 7 and 0 <= y - i*dy < 6 and board[y - i*dy][x - i*dx] == player:
-                count += 1
-            else:
-                break
-        if count >= 4:
+        total_count = 1 + count_consecutive(dx, dy) + count_consecutive(-dx, -dy)
+        if total_count >= 4:
             return True
     return False
 
